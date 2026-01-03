@@ -19,6 +19,12 @@ jobs:
       id-token: write
 
     steps:
+      - name: Set lowercase github repository
+        run: |
+          echo "REPO_LC=${REPO,,}" >> $GITHUB_ENV
+        env:
+          REPO: '${{ github.repository }}'
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -42,8 +48,8 @@ jobs:
         uses: docker/build-push-action@master
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ env.REPO_LC }}:latest
 
       - name: Sign the container image
-        run: cosign sign ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
+        run: cosign sign ghcr.io/${{ env.REPO_LC }}@${{ steps.push-step.outputs.digest }}
 
